@@ -15,7 +15,7 @@ const BulkUpload =()=>{
                 setUploadProgress(progressCompleted);
             }
         })
-        .then(response=>console.log(response.data))
+        .then(response=>{if(response.status === 200) {return alert("File Uploaded Successfully...")}else throw new Error("File upload failed!");;})
         .catch(error=>console.error("Error Uploading File: ",error));
     };
 

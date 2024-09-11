@@ -55,6 +55,14 @@ class Products extends Component {
     }
   };
 
+
+  handleSelectedPage = (event) =>{
+    const page = event.target.value;
+    if (page >= 0 && page < this.state.totalPages) {
+      this.fetchProducts(page, this.state.pageSize);
+    }
+  }
+
   handlePageSizeChange = (event) => {
     const newSize = event.target.value;
     this.setState({ pageSize: newSize, currentPage: 0 }, () => {
@@ -137,8 +145,8 @@ class Products extends Component {
   renderPagination = () => {
     const { currentPage, totalPages } = this.state;
     const pageNumbers = [];
-
-    for (let i = 0; i < totalPages; i++) {
+    var lastPage = "";
+    for (let i = 0; i < 2; i++) {
       pageNumbers.push(
         <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
           <button className="page-link" onClick={() => this.handlePageChange(i)}>
@@ -146,6 +154,14 @@ class Products extends Component {
           </button>
         </li>
       );
+    }
+    for (let i = 0; i < totalPages; i++) {
+      lastPage = 
+        <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+          <button className="page-link" onClick={() => this.handlePageChange(i)}>
+            {i}
+          </button>
+        </li>
     }
 
     return (
@@ -157,6 +173,8 @@ class Products extends Component {
             </button>
           </li>
           {pageNumbers}
+          <li><input className='page-link' style={{width:"20%"}} type='text'value={currentPage} onChange={this.handleSelectedPage}/> </li>
+          {lastPage}
           <li className={`page-item ${currentPage + 1 === totalPages ? 'disabled' : ''}`}>
             <button className="page-link" onClick={() => this.handlePageChange(currentPage + 1)}>
               Next
@@ -301,8 +319,9 @@ class Products extends Component {
                 <select className="form-select" value={pageSize} onChange={this.handlePageSizeChange}>
                   <option value={5}>5</option>
                   <option value={10}>10</option>
-                  <option value={15}>15</option>
                   <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
                 </select>
               </div>
               <p>
