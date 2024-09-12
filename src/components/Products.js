@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import '../css/Products.css'; // Import custom CSS
+import '../css/Products.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import ProductDetails from './ProductDetails';
 import { Link } from 'react-router-dom';
 
 class Products extends Component {
@@ -23,16 +22,22 @@ class Products extends Component {
     onSave:null,
     showDeleteModal:false,
     deleteProduct:null,
+
   };
 
   componentDidMount() {
-    this.fetchProducts(this.state.currentPage, this.state.pageSize);
+    this.fetchProducts(this.state.currentPage, this.state.pageSize, this.state.searchInput);
   }
 
-  fetchProducts = (page, size) => {
+  fetchProducts = (page, size, searchInput = null) => {
     this.setState({ loading: true });
-    axios.get(`http://localhost:8080/api/products?page=${page}&size=${size}`)
+    const url = searchInput
+    ? `http://localhost:8080/api/search/products?keyword=${searchInput}&page=${page}&size=${size}`
+    : `http://localhost:8080/api/products?page=${page}&size=${size}`;
+
+    axios.get(url)
       .then(response => {
+        console.log(response.data.content);
         this.setState({
           products: response.data.content,
           totalPages: response.data.totalPages,
@@ -51,7 +56,7 @@ class Products extends Component {
 
   handlePageChange = (page) => {
     if (page >= 0 && page < this.state.totalPages) {
-      this.fetchProducts(page, this.state.pageSize);
+      this.fetchProducts(page, this.state.pageSize, this.state.searchInput);
     }
   };
 
@@ -59,14 +64,14 @@ class Products extends Component {
   handleSelectedPage = (event) =>{
     const page = event.target.value;
     if (page >= 0 && page < this.state.totalPages) {
-      this.fetchProducts(page, this.state.pageSize);
+      this.fetchProducts(page, this.state.pageSize, this.state.searchInput);
     }
   }
 
   handlePageSizeChange = (event) => {
     const newSize = event.target.value;
     this.setState({ pageSize: newSize, currentPage: 0 }, () => {
-      this.fetchProducts(0, newSize);
+      this.fetchProducts(0, newSize, this.state.searchInput);
     });
   };
 
@@ -90,7 +95,7 @@ class Products extends Component {
         body: JSON.stringify(selectedProduct)
       });
       if (response.status === 200) {
-        this.fetchProducts(this.state.currentPage, this.state.pageSize);
+        this.fetchProducts(this.state.currentPage, this.state.pageSize, this.state.searchInput);
         this.handleClose();
       }
     } catch (error) {
@@ -112,7 +117,7 @@ class Products extends Component {
       const { deleteProduct } = this.state;
       const response = await axios.delete(`http://localhost:8080/api/delete/product/${deleteProduct.id}`);
       if(response.status===200){
-        this.fetchProducts(this.state.currentPage, this.state.pageSize);
+        this.fetchProducts(this.state.currentPage, this.state.pageSize, this.state.searchInput);
         this.handleClose();
       }
     }catch(error){
@@ -129,18 +134,13 @@ class Products extends Component {
     });
   }
 
-  handleSearch=()=>{
-    const searchKeyword= this.state.searchInput;
-    axios.get(`http://localhost:8080/api/search/products?keyword=${searchKeyword}`).then(
-      response => {
-        this.setState({
-          products: response.data,
-        });
-      }
-    ).catch(error => {
-      console.error('Error fetching products:', error);
+  // Search button functionality that also resets to the first page
+  handleSearch = () => {
+    const { searchInput, pageSize } = this.state;
+    this.setState({ currentPage: 0 }, () => {
+      this.fetchProducts(0, pageSize, searchInput);
     });
-  }
+  };
 
   renderPagination = () => {
     const { currentPage, totalPages } = this.state;
@@ -201,7 +201,7 @@ class Products extends Component {
                   <div class="col-md-6">
                       <div>
                           <div class="search-2"> <i class='bx bxs-map'></i>
-                              <input name="searchInput" type="text" placeholder="Search here..." value={this.state.searchKeyword} onChange={this.handleInputChange}/>
+                              <input name="searchInput" type="text" placeholder="Search here..." value={this.state.searchInput} onChange={this.handleInputChange}/>
                               <button variant="link" className="ml-auto" onClick={this.handleSearch}>Search</button>
                           </div>
                       </div>
