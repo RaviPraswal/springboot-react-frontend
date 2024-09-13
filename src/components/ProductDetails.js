@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate  } from 'react-router-dom';
 import axios from 'axios';
 import '../css/product-details.css';
 
 const ProductDetails = () => {
     const {id} = useParams(); 
     const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);    
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();    
     
     useEffect(()=>{
         axios.get(`http://localhost:8080/api/products/${id}`,
@@ -20,6 +21,11 @@ const ProductDetails = () => {
             setLoading(false);
         });
     },[id]);
+
+    const handleBack = ()=>{
+      navigate(-1);  // Navigate to the previous page
+    }
+
 
     if (loading) {
         return <div>Loading...</div>;
@@ -45,7 +51,9 @@ const ProductDetails = () => {
         <p><strong>Warranty:</strong> {product.warranty}</p>
         <p><strong>Weight:</strong> {product.weight}</p>
 
-        {/* Add more details as needed */}
+        <button className="back-button" onClick={handleBack}>
+          Back
+        </button>
       </div>
     );
   };
