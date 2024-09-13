@@ -153,9 +153,9 @@ const Products = () => {
           <li>
             <input className='page-link' style={{ width: "20%" }} type='text' value={currentPage} onChange={handleSelectedPage} />
           </li>
-          <li className={`page-item ${currentPage === totalPages -1 ? 'disabled' : ''}`}>
-            <button className="page-link" onClick={() => handlePageChange(totalPages)}>
-              {totalPages}
+          <li className={`page-item ${currentPage === totalPages-1 ? 'active' : ''}`}>
+            <button className="page-link" onClick={() => handlePageChange(totalPages-1)}>
+              {totalPages-1}
             </button>
           </li>
           <li className={`page-item ${currentPage + 1 === totalPages ? 'disabled' : ''}`}>
